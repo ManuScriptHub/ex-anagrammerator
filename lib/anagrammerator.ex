@@ -1,24 +1,41 @@
 defmodule Anagrammerator do
+  use GenServer
 
-  def load do
+  def start_link do
+    #starts the server (see init)
+    {:ok, _} = GenServer.start_link(__MODULE__, :ok, [])
+  end
+
+  def init(:ok) do
+    #load initial state
+    {:ok, load}
+  end
+
+  def query(pid, args) do
+    GenServer.call(pid, {:query, args})
+  end
+
+  def handle_call({:query, letters}, _from, state) do
+    key = to_key(letters)
+    {:reply, Map.fetch(state, key), state}
+  end
+
+# ================== private implementation =====================
+  defp load do
     #unzip archive, requesting binary in memory
     {:ok, filelist} = :zip.unzip('assets/deutsch_d25_utf8.txt.zip', [:memory])
     #there is just one text file in that
     {_, content} = List.first(filelist)
     #get the words out of the content
-    dict = content
+    content
     |> to_words
-    |> to_dict
-
-    IO.puts Enum.join(Map.keys(dict),",")
+    |> Enum.reduce(Map.new(), &process_word/2)
   end
 
   defp to_words(content) do
     content
     |> String.split("\n")
-    |> Enum.map(&first_word(&1))
-    #lines = String.split(content, "\n")
-    #Enum.map(lines, &first_word(&1))
+    |> Enum.map(&first_word/1)
   end
 
   defp first_word(line) do
@@ -27,19 +44,13 @@ defmodule Anagrammerator do
     |> List.first
   end
 
-  defp to_dict(words) do
-    #first impl, create a dict with sorted letters as keys and all words with those letters as values.
-    List.foldl(words, Map.new(), &process_word(&1,&2))
+  defp process_word(word, wordmap) do
+    Map.update(wordmap, to_key(word), [word], fn (val) -> [val | word] end)
   end
 
-  def process_word(word, wordmap) do
-    #we only need the first word on the line
-    #quick implementation - sort and insert into map
-    sorted =
-      String.split(word,"")
-      |> Enum.sort
-      |> Enum.join
-
-    Map.update(wordmap, sorted, [word], fn (val) -> val ++ [word] end)
+  defp to_key(word) do
+    String.split(word,"")
+    |> Enum.sort
+    |> Enum.join
   end
 end

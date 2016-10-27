@@ -10,7 +10,7 @@ defmodule Anagrammerator do
     |> to_words
     |> to_dict
 
-    IO.puts Map.keys(dict)
+    IO.puts Enum.join(Map.keys(dict),",")
   end
 
   defp to_words(content) do

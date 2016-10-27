@@ -14,12 +14,17 @@ defmodule Anagrammerator do
   end
 
   defp to_words(content) do
-    lines = String.split(content, "\n")
-    Enum.map(lines, &first_word(&1))
+    content
+    |> String.split("\n")
+    |> Enum.map(&first_word(&1))
+    #lines = String.split(content, "\n")
+    #Enum.map(lines, &first_word(&1))
   end
 
   defp first_word(line) do
-    List.first(String.split(line, " "))
+    line
+    |> String.split(" ")
+    |> List.first
   end
 
   defp to_dict(words) do

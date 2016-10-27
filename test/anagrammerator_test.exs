@@ -6,7 +6,7 @@ defmodule AnagrammeratorTest do
     assert 1 + 1 == 2
   end
 
-  Anagrammerator.processWord("AA", Map.new())
+  Anagrammerator.process_word("AA", Map.new())
 
   Anagrammerator.load
 

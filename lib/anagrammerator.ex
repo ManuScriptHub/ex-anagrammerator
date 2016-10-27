@@ -6,31 +6,35 @@ defmodule Anagrammerator do
     #there is just one text file in that
     {_, content} = List.first(filelist)
     #get the words out of the content
-    words = toWords(content)
+    dict = content
+    |> to_words
+    |> to_dict
 
-    #process words (dict impl)
-    dict = toDict(words)
-
-    IO.puts(dict)
+    IO.puts Map.keys(dict)
   end
 
-  defp toWords(content) do
+  defp to_words(content) do
     lines = String.split(content, "\n")
-    Enum.map(lines, fn(line) ->
-      List.first(String.split(line, " "))
-    end)
+    Enum.map(lines, &first_word(&1))
   end
 
-  defp toDict(words) do
+  defp first_word(line) do
+    List.first(String.split(line, " "))
+  end
+
+  defp to_dict(words) do
     #first impl, create a dict with sorted letters as keys and all words with those letters as values.
-    List.foldl(words, Map.new(), &processWord(&1,&2))
+    List.foldl(words, Map.new(), &process_word(&1,&2))
   end
 
-  def processWord(word, wordmap) do
+  def process_word(word, wordmap) do
     #we only need the first word on the line
     #quick implementation - sort and insert into map
-    chars = String.split(word, "")
-    sorted = Enum.join(Enum.sort(chars))
-    Map.update(wordmap, sorted, [word], fn (val) -> val ++ word end)
+    sorted =
+      String.split(word,"")
+      |> Enum.sort
+      |> Enum.join
+
+    Map.update(wordmap, sorted, [word], fn (val) -> val ++ [word] end)
   end
 end

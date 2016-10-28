@@ -1,0 +1,6 @@
+<div class="jumbotron">
+  <h2>Results</h2>
+  <%= for r <- @res do %>
+    <p><%= r %></p>
+  <% end %>
+</div>
